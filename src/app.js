@@ -2,18 +2,21 @@ const express = require("express")
 const app = express()
 const PORT = 7878
 
-app.use("/home", (req, res) => {
-    res.send("Namaste Home page")
+app.get("/user", (req, res) => {
+    console.log("GET user data");
+    res.send("User data received successfully.")
 })
-app.use("/connections",(req, res) => {
-    res.send("Connections page")
+app.post("/user", (req, res) => {
+    console.log("Update user data");
+    res.send("New user data added successfully.")
 })
-app.use("/profile", (req, res) => {
-    res.send("See your profile")
+app.patch("/user", (req, res) => {
+    console.log("Update user data");
+    res.send("User data updated successfully.")
 })
-
-app.use("/hello", (req, res) => {
-    res.send("Helllooooo!!!!!")
+app.delete("/user", (req, res) => {
+    console.log("Delete user data");
+    res.send("User data deleted successfully.")
 })
 
 app.listen(PORT, (req, res) => {
