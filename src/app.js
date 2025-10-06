@@ -22,7 +22,7 @@ const rh3 = (req, res, next) => {
 app.use("/omkesh", [rh1, rh2, rh3])
 
 
-app.get("/user", (req, res) => {
+app.get("/user", (req, res, next) => {
     console.log("GET user data");
     console.log(req.query)
     res.send("User data received successfully.")
