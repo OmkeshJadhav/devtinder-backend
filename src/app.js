@@ -1,27 +1,23 @@
 const express = require("express")
-const {adminAuth, userAuth} = require("./middlewares/auth")
+const { adminAuth, userAuth } = require("./middlewares/auth")
 
 const app = express()
 const PORT = 7878
 
-app.use("/admin", adminAuth)
-
-app.get("/admin/getAllUsersData", (req, res) => {
-    res.send("Received all users data")
+app.get("/user/getUserData", (req, res, next) => {
+    console.log("Inside /user/getUserData route")
+    // Logic to make DB call and get user data
+    const err = new Error("Database connection failed!")
+    next(err) // Pass error to Express error-handling middleware
 })
 
-app.post("/admin/deleteUser", (req, res) => {
-    res.send("User deleted successfully")
-})
-
-app.post("/user/login", (req, res)=>{
-    res.send("User logged in successfully!")
-})
-
-app.get("/user/data", userAuth, (req, res) => { // userAuth is directly applied here
-    res.send("User data sent")
+// Error-handling middleware (specific to "/user" routes)
+app.use("/user", (err, req, res, next) => {
+    console.error("Error logged:", err.message)
+    res.status(500).send("Something went wrong.")
 })
 
 app.listen(PORT, (req, res) => {
     console.log("Server is listening successfully!!!");
 })
+
