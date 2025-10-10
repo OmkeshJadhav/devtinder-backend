@@ -14,7 +14,7 @@ app.post("/signup", async (req, res) => {
         await user.save()
         res.send("User added successfully!")
     } catch (error) {
-        res.status(400).send({message: "Something went wrong"}, {error: error.message})
+        res.status(400).send({message: error.message}, {error: error.message})
     }
 })
 
@@ -23,7 +23,7 @@ app.get("/user", async(req, res) => {
         const user = await User.findOne({emailId: req.body.emailId})
         res.send(user)
     } catch (error) {
-        res.status(400).send({message: "Something went wrong"}, {error: error.message})
+        res.status(400).send({message: error.message}, {error: error.message})
     }
 })
 
@@ -73,7 +73,7 @@ app.patch("/user", async(req, res) => {
     const userId = req.body.userId
 
     try {
-        const user = await User.findByIdAndUpdate(userId, updatedData)
+        const user = await User.findByIdAndUpdate(userId, updatedData, {runValidators: true});
         res.send(`User data for id ${userId} updated successfully!!`)
     } catch (error) {
         res.status(500).send({ message: "Something went wrong", error: error.message })
