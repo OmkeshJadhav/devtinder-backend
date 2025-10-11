@@ -9,39 +9,50 @@ app.use(express.json())
 
 app.post("/signup", async (req, res) => {
     const user = new User(req.body)
+    const userObj = user.toObject()
+    const requiredFields = ["firstName", "lastName", "emailId", "password", "age"]
+    
+    // const areRequiredFieldsAvailable = Object.keys(req.body).every(field => requiredFields.includes(field))
+    const areRequiredFieldsAvailable = requiredFields.every(field => userObj[field])
 
     try {
-        await user.save()
-        res.send("User added successfully!")
+        if (!areRequiredFieldsAvailable) {
+            throw new Error("Sign up failed! Please fill all the required fields.")
+        } else if(userObj.skills.length > 5){
+            throw new Error ("You can enter max 5 skills")
+        } else {
+            await user.save()
+            res.send("User added successfully!")
+        }
     } catch (error) {
-        res.status(400).send({message: error.message}, {error: error.message})
+        res.status(400).send({ message: error.message }, { error: error.message })
     }
 })
 
-app.get("/user", async(req, res) => {
+app.get("/user", async (req, res) => {
     try {
-        const user = await User.findOne({emailId: req.body.emailId})
+        const user = await User.findOne({ emailId: req.body.emailId })
         res.send(user)
     } catch (error) {
-        res.status(400).send({message: error.message}, {error: error.message})
+        res.status(400).send({ message: error.message }, { error: error.message })
     }
 })
 
-app.get("/feed", async(req, res) => {
+app.get("/feed", async (req, res) => {
     try {
         const users = await User.find({})
         res.send(users)
     } catch (error) {
-        res.status(400).send({message: "Something went wrong"}, {error: error.message})
+        res.status(400).send({ message: "Something went wrong" }, { error: error.message })
     }
 })
 
-app.get("/findUserById", async(req, res) => {
+app.get("/findUserById", async (req, res) => {
     try {
-        const users = await User.findById({_id: req.body._id})
+        const users = await User.findById({ _id: req.body._id })
         res.send(users)
     } catch (error) {
-        res.status(400).send({message: "Something went wrong"}, {error: error.message})
+        res.status(400).send({ message: "Something went wrong" }, { error: error.message })
     }
 })
 
@@ -68,13 +79,24 @@ app.delete("/user", async (req, res) => {
     }
 })
 
-app.patch("/user", async(req, res) => {
-    const updatedData = req.body;
-    const userId = req.body.userId
+app.patch("/user/:userId", async (req, res) => {
+    const data = req.body;
+    const userId = req.params.userId
 
     try {
-        const user = await User.findByIdAndUpdate(userId, updatedData, {runValidators: true});
-        res.send(`User data for id ${userId} updated successfully!!`)
+        const allowed_Updates = ["password", "image", "assets"]
+        const isUpdateAllowed = Object.keys(data).every(key => allowed_Updates.includes(key))
+
+        if (!isUpdateAllowed) {
+            throw new Error("Update Not Allowed")
+        } else if(data.skills.length > 5){
+            throw new Error ("You can enter max 5 skills")
+        }
+        else {
+            const user = await User.findByIdAndUpdate(userId, data, { runValidators: true });
+            res.send(`User data for id ${userId} updated successfully!!`)
+        }
+
     } catch (error) {
         res.status(500).send({ message: "Something went wrong", error: error.message })
     }
