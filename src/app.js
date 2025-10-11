@@ -11,15 +11,15 @@ app.post("/signup", async (req, res) => {
     const user = new User(req.body)
     const userObj = user.toObject()
     const requiredFields = ["firstName", "lastName", "emailId", "password", "age"]
-    
+
     // const areRequiredFieldsAvailable = Object.keys(req.body).every(field => requiredFields.includes(field))
     const areRequiredFieldsAvailable = requiredFields.every(field => userObj[field])
 
     try {
         if (!areRequiredFieldsAvailable) {
             throw new Error("Sign up failed! Please fill all the required fields.")
-        } else if(userObj.skills.length > 5){
-            throw new Error ("You can enter max 5 skills")
+        } else if (userObj.skills.length > 5) {
+            throw new Error("You can enter max 5 skills")
         } else {
             await user.save()
             res.send("User added successfully!")
@@ -89,8 +89,8 @@ app.patch("/user/:userId", async (req, res) => {
 
         if (!isUpdateAllowed) {
             throw new Error("Update Not Allowed")
-        } else if(data.skills.length > 5){
-            throw new Error ("You can enter max 5 skills")
+        } else if (data.skills.length > 5) {
+            throw new Error("You can enter max 5 skills")
         }
         else {
             const user = await User.findByIdAndUpdate(userId, data, { runValidators: true });

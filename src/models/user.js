@@ -50,7 +50,7 @@ const userSchema = new mongoose.Schema({
     },
     image: {
         type: String,
-        // default: "https://www.shutterstock.com/search/blank-passport-photo",
+        default: "https://www.shutterstock.com/search/blank-passport-photo",
         validate: (value) => {
             if (!validator.isURL(value)) {
                 throw new Error("Please enter valid link for image")
