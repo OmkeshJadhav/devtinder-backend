@@ -1,33 +1,43 @@
 const express = require("express")
 const mongoose = require("mongoose")
+const bcrypt = require("bcrypt")
 const connectDB = require("./config/database.js")
 const User = require("./models/user.js")
 const { signUpValidator } = require("./utils/validation.js")
+
 const app = express()
 const PORT = 7878
 
 app.use(express.json())
 
 app.post("/signup", async (req, res) => {
-    const user = new User(req.body)
-    const userObj = user.toObject()
-    const requiredFields = ["firstName", "lastName", "emailId", "password", "age"]
-
-    // const areRequiredFieldsAvailable = Object.keys(req.body).every(field => requiredFields.includes(field))
-    const areRequiredFieldsAvailable = requiredFields.every(field => userObj[field])
-
     try {
+        const user = new User(req.body)
+        const userObj = user.toObject()
+
+        const requiredFields = ["firstName", "lastName", "emailId", "password", "age"]
+
+        // const areRequiredFieldsAvailable = Object.keys(req.body).every(field => requiredFields.includes(field))
+        const areRequiredFieldsAvailable = requiredFields.every(field => userObj[field])
+
+        // Validation of data
         signUpValidator(req)
+
         if (!areRequiredFieldsAvailable) {
             throw new Error("Sign up failed! Please fill all the required fields.")
-        } else if (userObj.skills.length > 5) {
-            throw new Error("You can enter max 5 skills")
-        } else {
-            await user.save()
-            res.send("User added successfully!")
         }
+
+        // Hash the password
+        const passwordHash = await bcrypt.hash(req.body.password, 10);
+
+        // Replace the plain password with the hash
+        user.password = passwordHash;
+
+        // Save the user
+        await user.save();
+        res.send("User added successfully!")
     } catch (error) {
-        res.status(400).send("ERROR: " + error.message)
+        res.status(400).send("ERROR: " + error.message);
     }
 })
 
