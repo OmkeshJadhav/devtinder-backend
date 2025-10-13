@@ -2,6 +2,7 @@ const express = require("express")
 const mongoose = require("mongoose")
 const connectDB = require("./config/database.js")
 const User = require("./models/user.js")
+const { signUpValidator } = require("./utils/validation.js")
 const app = express()
 const PORT = 7878
 
@@ -16,6 +17,7 @@ app.post("/signup", async (req, res) => {
     const areRequiredFieldsAvailable = requiredFields.every(field => userObj[field])
 
     try {
+        signUpValidator(req)
         if (!areRequiredFieldsAvailable) {
             throw new Error("Sign up failed! Please fill all the required fields.")
         } else if (userObj.skills.length > 5) {
@@ -25,7 +27,7 @@ app.post("/signup", async (req, res) => {
             res.send("User added successfully!")
         }
     } catch (error) {
-        res.status(400).send({ message: error.message }, { error: error.message })
+        res.status(400).send("ERROR: " + error.message)
     }
 })
 
