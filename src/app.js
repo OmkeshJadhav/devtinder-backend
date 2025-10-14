@@ -4,11 +4,14 @@ const bcrypt = require("bcrypt")
 const connectDB = require("./config/database.js")
 const User = require("./models/user.js")
 const { signUpValidator } = require("./utils/validation.js")
+const cookieParser = require("cookie-parser");
+const jwt = require('jsonwebtoken')
 
 const app = express()
 const PORT = 7878
 
 app.use(express.json())
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
     try {
@@ -43,20 +46,43 @@ app.post("/signup", async (req, res) => {
 
 app.post("/login", async (req, res) => {
     try {
-        const {emailId, password} = req.body
+        const { emailId, password } = req.body
 
-        const user = await User.findOne({emailId: emailId})
-        
-        if(!user){
+        const user = await User.findOne({ emailId: emailId })
+
+        if (!user) {
             throw new Error("Invalid credentials! Please enter valid credentials.")
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password)
 
-        if(isPasswordValid) {
+        if (isPasswordValid) {
+            // Create a JWT token
+            const token = jwt.sign({ _id: user._id }, "Omkesh@123$Zimpi&Chika")
+            console.log("Token generated:")
+
+            // Add the token to cookie and send the response back to the client
+            res.cookie("token", token)
             res.send("Login Successful!!!")
         } else {
             throw new Error("Invalid credentials.")
+        }
+    } catch (error) {
+        res.status(400).send("ERROR: " + error.message);
+    }
+})
+
+app.get("/profile", async (req, res) => {
+    try {
+        const { token } = req.cookies
+
+        if(!token){
+            throw new Error("Please sign in!")
+        } else {
+            const decoded = jwt.verify(token, "Omkesh@123$Zimpi&Chika")
+
+            const user = await User.findById(decoded._id)
+            res.send(user)
         }
     } catch (error) {
         res.status(400).send("ERROR: " + error.message);
