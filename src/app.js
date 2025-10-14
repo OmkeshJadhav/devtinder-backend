@@ -6,6 +6,7 @@ const User = require("./models/user.js")
 const { signUpValidator } = require("./utils/validation.js")
 const cookieParser = require("cookie-parser");
 const jwt = require('jsonwebtoken')
+const { userAuth } = require("./middlewares/auth.js")
 
 const app = express()
 const PORT = 7878
@@ -72,20 +73,12 @@ app.post("/login", async (req, res) => {
     }
 })
 
-app.get("/profile", async (req, res) => {
+app.get("/profile", userAuth, async (req, res) => {
     try {
-        const { token } = req.cookies
-
-        if(!token){
-            throw new Error("Please sign in!")
-        } else {
-            const decoded = jwt.verify(token, "Omkesh@123$Zimpi&Chika")
-
-            const user = await User.findById(decoded._id)
-            res.send(user)
-        }
+        const user = req.user
+        res.send(user)
     } catch (error) {
-        res.status(400).send("ERROR: " + error.message);
+        res.status(400).send("ERRO R: " + error.message);
     }
 })
 
@@ -107,7 +100,7 @@ app.get("/feed", async (req, res) => {
     }
 })
 
-app.get("/findUserById", async (req, res) => {
+app.get("/findUserById", userAuth, async (req, res) => {
     try {
         const users = await User.findById({ _id: req.body._id })
         res.send(users)
@@ -116,7 +109,7 @@ app.get("/findUserById", async (req, res) => {
     }
 })
 
-app.delete("/user", async (req, res) => {
+app.delete("/user", userAuth, async (req, res) => {
     try {
         const userId = req.body.userId
 
@@ -139,7 +132,7 @@ app.delete("/user", async (req, res) => {
     }
 })
 
-app.patch("/user/:userId", async (req, res) => {
+app.patch("/user/:userId", userAuth, async (req, res) => {
     const data = req.body;
     const userId = req.params.userId
 
