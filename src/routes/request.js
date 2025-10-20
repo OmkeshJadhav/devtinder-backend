@@ -1,5 +1,6 @@
 const express = require("express")
 const { userAuth } = require("../middlewares/auth")
+const User = require("../models/user")
 const ConnectionRequest = require("../models/connectionRequest")
 
 const connectionRequestRouter = express.Router()
@@ -9,6 +10,26 @@ connectionRequestRouter.post("/request/send/:status/:toUserId", userAuth, async 
         const fromUserId = req.user._id
         const toUserId = req.params.toUserId
         const status = req.params.status
+
+        const allowedStatus = ["ignored", "interested"]
+        if(!allowedStatus.includes(status)){
+            return res.status(400).json({ error: `Status "${status}" is not permitted` });
+        }
+
+        const doesReceiverUserExists = await User.findOne({ _id: toUserId })
+        if(!doesReceiverUserExists){
+            throw new Error(`Receiver profile does not exists.`)
+        }
+
+        const doesRequestExists = await ConnectionRequest.findOne({
+            $or: [
+                {fromUserId: fromUserId, toUserId: toUserId},
+                {fromUserId: toUserId, toUserId: fromUserId}
+            ]
+        })
+        if(doesRequestExists){
+            return res.status(400).json({error: `Connection request already exists.`})
+        }
 
         const connectionRequest = new ConnectionRequest({
             fromUserId,
