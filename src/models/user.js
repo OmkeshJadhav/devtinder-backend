@@ -8,7 +8,8 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         minLength: 3,
-        maxLength: 40
+        maxLength: 40,
+        index: true
     },
     lastName: {
         type: String,
@@ -72,6 +73,7 @@ const userSchema = new mongoose.Schema({
     }
 }, { timestamps: true })
 
+userSchema.index({firstName: 1, lastName: 1})
 
 // For Creating JWT
 userSchema.methods.createJWT = async function(){

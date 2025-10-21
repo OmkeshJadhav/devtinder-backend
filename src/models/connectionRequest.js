@@ -1,6 +1,6 @@
 const mongoose = require("mongoose")
 
-const connectionRequest = new mongoose.Schema(
+const connectionRequestSchema = new mongoose.Schema(
     {
         fromUserId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -22,7 +22,10 @@ const connectionRequest = new mongoose.Schema(
     { timestamps: true }
 )
 
-connectionRequest.pre("save", function (next) {
+connectionRequestSchema.index({fromUserId: 1, toUserId: 1})
+// 1 is ascending order, -1 means descending order
+
+connectionRequestSchema.pre("save", function (next) {
     const connectionRequest = this;
 
     if (connectionRequest.fromUserId.equals(connectionRequest.toUserId)) {
@@ -32,7 +35,7 @@ connectionRequest.pre("save", function (next) {
     next()
 });
 
-module.exports = mongoose.model("ConnectionRequest", connectionRequest)
+module.exports = mongoose.model("ConnectionRequest", connectionRequestSchema)
 
 /*
 1) Add ref for relational clarity
