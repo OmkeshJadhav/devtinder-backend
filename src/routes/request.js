@@ -48,8 +48,6 @@ connectionRequestRouter.post("/request/send/:status/:toUserId", userAuth, async 
     }
 })
 
-
-
 module.exports = connectionRequestRouter;
 
 /*
