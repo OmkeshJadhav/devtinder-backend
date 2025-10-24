@@ -4,7 +4,8 @@ const connectionRequestSchema = new mongoose.Schema(
     {
         fromUserId: {
             type: mongoose.Schema.Types.ObjectId,
-            required: true
+            required: true,
+            ref: "User"
         },
         toUserId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -22,6 +23,7 @@ const connectionRequestSchema = new mongoose.Schema(
     { timestamps: true }
 )
 
+// unique index
 connectionRequestSchema.index({fromUserId: 1, toUserId: 1})
 // 1 is ascending order, -1 means descending order
 
