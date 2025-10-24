@@ -11,16 +11,19 @@ connectionRequestRouter.post("/request/send/:status/:toUserId", userAuth, async 
         const toUserId = req.params.toUserId
         const status = req.params.status
 
+        // validate status
         const allowedStatus = ["ignored", "interested"]
         if (!allowedStatus.includes(status)) {
             return res.status(400).json({ error: `Status "${status}" is not permitted` });
         }
 
+        // validate receiver user
         const doesReceiverUserExists = await User.findOne({ _id: toUserId })
         if (!doesReceiverUserExists) {
             throw new Error(`Receiver profile does not exists.`)
         }
 
+        // validate duplicate request
         const doesRequestExists = await ConnectionRequest.findOne({
             $or: [
                 { fromUserId: fromUserId, toUserId: toUserId },
@@ -31,14 +34,17 @@ connectionRequestRouter.post("/request/send/:status/:toUserId", userAuth, async 
             return res.status(400).json({ error: `Connection request already exists.` })
         }
 
+        // Create an instance of connection request
         const connectionRequest = new ConnectionRequest({
             fromUserId,
             toUserId,
             status
         })
 
+        // Save the connection request
         const connectionRequestData = await connectionRequest.save()
 
+        // Send response for success
         res.json({
             message: "Connection request sent successfully!",
             data: connectionRequestData
@@ -92,21 +98,3 @@ connectionRequestRouter.post("/request/review/:status/:requestId", userAuth, asy
 })
 
 module.exports = connectionRequestRouter;
-
-/*
-1) If you don’t want users sending requests to themselves:
-    if (fromUserId.toString() === toUserId) {
-        return res.status(400).json({ error: "Cannot send request to yourself." });
-    }
-
-2) Validate status value before creating document - Even though you have enum validation in Mongoose, it’s good to check early to send cleaner error responses:
-    const allowedStatus = ["interested", "ignored", "accepted", "rejected"];
-        if (!allowedStatus.includes(status)) {
-        return res.status(400).json({ error: "Invalid status type!" });
-    }
-
-3) To prevent duplicate requests - handle the duplicate key error (code 11000):
-    if (error.code === 11000) {
-        res.status(400).json({ error: "Connection request already exists." });
-    }
-*/
