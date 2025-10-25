@@ -30,21 +30,21 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
 
         const connectionRequests = await connectionRequest.find({
             $or: [
-                {fromUserId: loggedInUser, status: "accepted"},
-                {toUserId: loggedInUser, status: "accepted"}
+                { fromUserId: loggedInUser, status: "accepted" },
+                { toUserId: loggedInUser, status: "accepted" }
             ]
         })
-        .populate("fromUserId", ["firstName", "lastName", "birthDate", "age", "image", "skills"])
-        .populate("toUserId", ["firstName", "lastName", "birthDate", "age", "image", "skills"])
+            .populate("fromUserId", ["firstName", "lastName", "birthDate", "age", "image", "skills"])
+            .populate("toUserId", ["firstName", "lastName", "birthDate", "age", "image", "skills"])
 
         const data = connectionRequests.map(connection => {
-            if(connection.fromUserId._id.toString() === loggedInUser._id.toString()){
+            if (connection.fromUserId._id.toString() === loggedInUser._id.toString()) {
                 return connection.toUserId;
             }
             return connection.fromUserId;
         })
-        
-        res.json({data: data})
+
+        res.json({ data: data })
     } catch (error) {
         res.status(400).send("ERROR: " + error.message)
     }
@@ -56,14 +56,26 @@ userRouter.get("/feed", async (req, res) => {
 
         const connectionRequests = await connectionRequest.find({
             $or: [
-                {fromUserId: loggedInUser._id},
-                {toUserId: loggedInUser._id}
+                { fromUserId: loggedInUser._id },
+                { toUserId: loggedInUser._id }
             ]
         }).select("fromUserId toUserId")
 
         const hideUsersFromFeed = new Set()
 
-        connectionRequests.map(req => )
+        connectionRequests.map(req => {
+            hideUsersFromFeed.add(req.fromUserId.toString());
+            hideUsersFromFeed.add(req.toUserId.toString());
+        });
+
+        const users = await User.find({
+            $and: [
+                { _id: { $nin: Array.from(hideUsersFromFeed) } },
+                { _id: { $ne: loggedInUser._id } },
+            ],
+        }).select("firstName lastName birthDate age image skills")
+
+        res.send(users)
     } catch (error) {
         res.status(400).send({ message: "Something went wrong" }, { error: error.message })
     }
