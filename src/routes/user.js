@@ -52,8 +52,18 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
 
 userRouter.get("/feed", async (req, res) => {
     try {
-        const users = await User.find({})
-        res.send(users)
+        const loggedInUser = req.user
+
+        const connectionRequests = await connectionRequest.find({
+            $or: [
+                {fromUserId: loggedInUser._id},
+                {toUserId: loggedInUser._id}
+            ]
+        }).select("fromUserId toUserId")
+
+        const hideUsersFromFeed = new Set()
+
+        connectionRequests.map(req => )
     } catch (error) {
         res.status(400).send({ message: "Something went wrong" }, { error: error.message })
     }
