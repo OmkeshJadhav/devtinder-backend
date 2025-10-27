@@ -85,7 +85,7 @@ userRouter.delete("/user", userAuth, async (req, res) => {
     try {
         const userId = req.body.userId
 
-        // Step 1: Validate ObjectId format
+        // Step 1: Validate ObjectId format 
         if (!mongoose.Types.ObjectId.isValid(userId)) {
             return res.status(400).send(`Invalid user id: ${userId}`)
         }
