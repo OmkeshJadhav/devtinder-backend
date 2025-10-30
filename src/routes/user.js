@@ -50,7 +50,7 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
     }
 })
 
-userRouter.get("/feed", async (req, res) => {
+userRouter.get("/feed", userAuth, async (req, res) => {
     try {
         const loggedInUser = req.user
         const page = parseInt(req.query.page) || 1;
@@ -84,7 +84,7 @@ userRouter.get("/feed", async (req, res) => {
 
         res.send(users)
     } catch (error) {
-        res.status(400).send({ message: "Something went wrong" }, { error: error.message })
+        res.status(400).send({ error: error.message })
     }
 })
 
