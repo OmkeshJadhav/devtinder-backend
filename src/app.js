@@ -1,10 +1,12 @@
 const express = require("express")
 const connectDB = require("./config/database.js")
 const cookieParser = require("cookie-parser");
+const cors = require('cors')
 
 const app = express()
 const PORT = 7878
 
+app.use(cors())
 app.use(express.json())
 app.use(cookieParser());
 
