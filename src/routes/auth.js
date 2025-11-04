@@ -57,7 +57,7 @@ authRouter.post("/login", async (req, res) => {
 
             // Add the token to cookie and send the response back to the client
             res.cookie("token", token, { expires: new Date(Date.now() + 24 * 3600000) }) // cookie will be removed after 24 hours
-            res.send("Login Successful!!!")
+            res.send(user)
         } else {
             throw new Error("Invalid credentials.")
         }
