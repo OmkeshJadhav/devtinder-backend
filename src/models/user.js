@@ -24,11 +24,12 @@ const userSchema = new mongoose.Schema({
     age: {
         type: Number,
         min: 18,
-        max: 65
+        max: 65,
+        required: true
     },
     gender: {
         type: String,
-        enum: ['Male', 'Female', 'Other']
+        enum: ['Male', 'Female', 'Other'],
     },
     emailId: {
         type: String,
@@ -70,6 +71,9 @@ const userSchema = new mongoose.Schema({
     },
     skills: {
         type: [String]
+    },
+    about: {
+        type: String
     }
 }, { timestamps: true })
 

@@ -38,11 +38,20 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
             .populate("toUserId", ["firstName", "lastName", "birthDate", "age", "image", "skills"])
 
         const data = connectionRequests.map(connection => {
-            if (connection.fromUserId._id.toString() === loggedInUser._id.toString()) {
-                return connection.toUserId;
+            const fromUser = connection.fromUserId;
+            const toUser = connection.toUserId;
+
+            if (!fromUser || !toUser) {
+                console.warn("Skipping connection with missing user:", connection._id);
+                return null;
             }
-            return connection.fromUserId;
+
+            if (fromUser._id.toString() === loggedInUser._id.toString()) {
+                return toUser;
+            }
+            return fromUser;
         })
+            .filter(user => user !== null);
 
         res.json({ data: data })
     } catch (error) {
