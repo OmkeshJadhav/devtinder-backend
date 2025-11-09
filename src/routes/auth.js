@@ -31,8 +31,12 @@ authRouter.post("/signup", async (req, res) => {
         user.password = passwordHash;
 
         // Save the user
-        await user.save();
-        res.send("User added successfully!")
+        const savedUser = await user.save();
+        const token = jwt.sign({ _id: user._id }, "Omkesh@123$Zimpi&Chika", { expiresIn: "1h" })
+
+        res.cookie("token", token, { expires: new Date(Date.now() + 24 * 3600000) }) // cookie will be removed after 24 hours
+
+        res.json({ message: "User added successfully", data: savedUser })
     } catch (error) {
         res.status(400).send("ERROR: " + error.message);
     }
@@ -53,7 +57,6 @@ authRouter.post("/login", async (req, res) => {
         if (isPasswordValid) {
             // Create a JWT token
             const token = jwt.sign({ _id: user._id }, "Omkesh@123$Zimpi&Chika", { expiresIn: "1h" })
-            console.log("Token generated:")
 
             // Add the token to cookie and send the response back to the client
             res.cookie("token", token, { expires: new Date(Date.now() + 24 * 3600000) }) // cookie will be removed after 24 hours

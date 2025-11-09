@@ -9,8 +9,8 @@ const signUpValidator = (req) => {
         throw new Error("Enter valid email id.")
     } else if (!validator.isStrongPassword(password)) {
         throw new Error("Please enter strong password.")
-    } else if (skills.length > 5) {
-        throw new Error("You can enter max 5 skills")
+    } else if (skills && Array.isArray(skills) && skills.length > 5) {
+        throw new Error("You can enter a maximum of 5 skills.")
     }
 }
 
